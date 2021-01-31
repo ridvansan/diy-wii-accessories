@@ -2,6 +2,9 @@
 // I used 4 weight sensor for measurement and HC-06 Bluetooth module for communication.
 // You can upload this to your Arduino for using it.
 
+#include <EEPROM.h>
+
+
 #define UPPERLEFT 2
 #define UPPERRIGHT 3
 #define LOWERLEFT 4
@@ -22,6 +25,10 @@ void updateWeightData(int *upleft,int *upRight, int *lowLeft, int *lowRight){
 }
 
 
+
+int startOfAddressOfData = 0xa40000;
+int endOfAddressOfData = 0xa4000a;
+
 //Added data struct as it says in WiiBrew Wii Balance Board Page
 struct data {
     uint16_t topRight;
@@ -32,6 +39,18 @@ struct data {
     uint8_t batteryLevel;
 };
 
+struct data readData(){
+    struct data datan = malloc(sizeof(struct data));
+    updateWeightData(&datan.topLeft,&datan.topRight,&datan.bottomLeft,&datan.bottomRight);
+    datan.temperature = 0x20;
+    datan.temperature = 0x83;
+}
+
+
+
+
+int startOfAddressOfCalibration = 0xa40020;
+int endOfAddressOfCalibration = 0xa4003f;
 
 //Added calibration struct
 struct calibration{
@@ -49,6 +68,26 @@ struct calibration{
     uint16_t bottomLeft34kg;
     uint32_t checksum;
 };
+
+int addressOfReferenceTemp = 0xa40060;
+
+struct referenceTemp
+{
+    uint8_t referenceTemperature; //Temperature when device is calibrated
+    uint8_t constant;   //Always 0x01
+};
+
+void calculateChecksum(){
+
+    int addr1 = 0xEDB88320; //28 bytes from here
+    int addr2 = 0x24; //24 bytes
+    int addr3 = 0x3b; //24 bytes
+    int addr4 = 0x20; //1 byte and x21
+    int addr5 = 0x60; //1 byte and x61
+
+
+
+}
 
 
 
